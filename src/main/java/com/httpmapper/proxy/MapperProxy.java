@@ -39,18 +39,23 @@ public class MapperProxy extends AbstractInvocationHandler {
     }
 
     @Override
-    protected Object handleInvocation(Object o, Method method, Object[] args) throws Throwable {
-        String mrKey = MapperRequestKeyUtil.getKey(method);
-        MapperRequest mapperRequest = configuration.getMapperRequest(mrKey);
-        checkNotNull(mapperRequest);
-        Object params = resolveRequestParameter(method,args);
-        //前置操作的处理
-        invokePostProcessBefore(mapperRequest,params,mapperRequest.getPostProcessors());
-        HttpResponse response = httpExecutor.executor(mapperRequest,params);
-        logger.info("response statusline is ==>{}",response.getStatusLine());
-        Object target =  mapperRequest.getResponseHandler().handle(mapperRequest,response);
-        //执行后置的操作 然后返回
-        return invokePostProcessAfter(mapperRequest,params,target,mapperRequest.getPostProcessors());
+    protected Object handleInvocation(Object o, Method method, Object[] args) {
+        try(HttpExecutor httpExecutor=this.httpExecutor;){
+            String mrKey = MapperRequestKeyUtil.getKey(method);
+            MapperRequest mapperRequest = configuration.getMapperRequest(mrKey);
+            checkNotNull(mapperRequest);
+            Object params = resolveRequestParameter(method,args);
+            //前置操作的处理
+            invokePostProcessBefore(mapperRequest,params,mapperRequest.getPostProcessors());
+            HttpResponse response = httpExecutor.executor(mapperRequest,params);
+            logger.info("response statusline is ==>{}",response.getStatusLine());
+            Object target =  mapperRequest.getResponseHandler().handle(mapperRequest,response);
+            //执行后置的操作 然后返回
+            return invokePostProcessAfter(mapperRequest,params,target,mapperRequest.getPostProcessors());
+        }catch (Exception e){
+            throw new RuntimeException();
+        }
+
     }
 
 

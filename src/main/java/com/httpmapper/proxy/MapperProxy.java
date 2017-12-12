@@ -22,8 +22,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author zph  on 2017/11/29
- *
- * JDK代理
+ *         <p>
+ *         JDK代理
  */
 public class MapperProxy extends AbstractInvocationHandler {
 
@@ -40,21 +40,17 @@ public class MapperProxy extends AbstractInvocationHandler {
 
     @Override
     protected Object handleInvocation(Object o, Method method, Object[] args) {
-        try(HttpExecutor httpExecutor=this.httpExecutor;){
-            String mrKey = MapperRequestKeyUtil.getKey(method);
-            MapperRequest mapperRequest = configuration.getMapperRequest(mrKey);
-            checkNotNull(mapperRequest);
-            Object params = resolveRequestParameter(method,args);
-            //前置操作的处理
-            invokePostProcessBefore(mapperRequest,params,mapperRequest.getPostProcessors());
-            HttpResponse response = httpExecutor.executor(mapperRequest,params);
-            logger.info("response statusline is ==>{}",response.getStatusLine());
-            Object target =  mapperRequest.getResponseHandler().handle(mapperRequest,response);
-            //执行后置的操作 然后返回
-            return invokePostProcessAfter(mapperRequest,params,target,mapperRequest.getPostProcessors());
-        }catch (Exception e){
-            throw new RuntimeException();
-        }
+        String mrKey = MapperRequestKeyUtil.getKey(method);
+        MapperRequest mapperRequest = configuration.getMapperRequest(mrKey);
+        checkNotNull(mapperRequest);
+        Object params = resolveRequestParameter(method, args);
+        //前置操作的处理
+        invokePostProcessBefore(mapperRequest, params, mapperRequest.getPostProcessors());
+        HttpResponse response = httpExecutor.executor(mapperRequest, params);
+        logger.info("response statusline is ==>{}", response.getStatusLine());
+        Object target = mapperRequest.getResponseHandler().handle(mapperRequest, response);
+        //执行后置的操作 然后返回
+        return invokePostProcessAfter(mapperRequest, params, target, mapperRequest.getPostProcessors());
 
     }
 
@@ -74,28 +70,28 @@ public class MapperProxy extends AbstractInvocationHandler {
                     for (Annotation annotation : annotations) {
                         if (annotation instanceof HttpParam) {
                             tmpParams.put(((HttpParam) annotation).value(), args[i]);
-                            isParamAnnotation= true;
+                            isParamAnnotation = true;
                             continue outer;
                         }
                     }
                 }
-                paramObject = isParamAnnotation?tmpParams:args.length==1?args[0]:Collections.emptyMap();
+                paramObject = isParamAnnotation ? tmpParams : args.length == 1 ? args[0] : Collections.emptyMap();
             }
             return paramObject;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void invokePostProcessBefore(MapperRequest mapperRequest,Object objectParam, List<PostProcessor> processors){
-        for (PostProcessor postProcessor:processors){
-            postProcessor.handlerBefore(mapperRequest,objectParam);
+    public void invokePostProcessBefore(MapperRequest mapperRequest, Object objectParam, List<PostProcessor> processors) {
+        for (PostProcessor postProcessor : processors) {
+            postProcessor.handlerBefore(mapperRequest, objectParam);
         }
     }
 
-    public Object invokePostProcessAfter(MapperRequest request,Object objectParam ,Object target, List<PostProcessor> processors){
-        for (PostProcessor postProcessor:processors){
-            target = postProcessor.handleAfter(request,objectParam,target);
+    public Object invokePostProcessAfter(MapperRequest request, Object objectParam, Object target, List<PostProcessor> processors) {
+        for (PostProcessor postProcessor : processors) {
+            target = postProcessor.handleAfter(request, objectParam, target);
         }
         return target;
     }

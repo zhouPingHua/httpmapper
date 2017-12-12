@@ -6,7 +6,7 @@ import com.httpmapper.http.MapperRequestFactory;
 import com.httpmapper.http.client.DefaultHttpClientFactory;
 import com.httpmapper.http.executor.DefaultHttpExecutor;
 import com.httpmapper.http.executor.HttpExecutor;
-import com.httpmapper.proxy.ServiceProxyFactory;
+import com.httpmapper.proxy.MapperProxyFactory;
 
 /**
  * @author zph  on 2017/11/29
@@ -31,7 +31,7 @@ public class Configuration {
     }
 
     public <T> T newMapper(Class<T> mapperClass) {
-        return ServiceProxyFactory.newInstance(mapperClass, this);
+        return MapperProxyFactory.newInstance(mapperClass, this);
     }
 
     public static ConfigurationBuilder newBuilder() {

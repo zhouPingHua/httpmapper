@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * @author zph  on 2017/11/29
  */
-public class DefaultHttpExecutor implements HttpExecutor{
+public class DefaultHttpExecutor implements HttpExecutor,AutoCloseable{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpExecutor.class);
     private HttpClient httpClient;

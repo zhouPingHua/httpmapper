@@ -6,7 +6,7 @@ import org.apache.http.HttpResponse;
 /**
  * @author zph  on 2017/11/29
  */
-public interface HttpExecutor extends AutoCloseable {
+public interface HttpExecutor {
 
     HttpResponse executor(MapperRequest mappedRequest, Object params);
 }
